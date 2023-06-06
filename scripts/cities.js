@@ -10,7 +10,6 @@ window.onload = () => {
     for (let city of cities) {
 
         let newOption = new Option(city.name);
-        debugger
         cityDropDown.appendChild(newOption);
     }
 
