@@ -6,19 +6,20 @@ const cityDropDown = document.getElementById("cityDropDown");
 
 const tableBody = document.getElementById("tableBody");
 
+let selectedCity = ""; // Add a variable to store the selected city
 
 //arrow function to execute function when browser finish loading 
 window.onload = () => {
 
     //on dropdown change a function will execute 
-    cityDropDown.onchange = onCityDropDownChange;
+    cityDropDown.onchange = showGeographicLocation;
 
 
     //loop through cities array creating a new option for each city in dropdown 
-    for (let city of cities) {
+    for (let aCity of cities) {
 
         //newOption defined as city.name 
-        let newOption = new Option(city.name);
+        let newOption = new Option(aCity.name);
         //create city name options in dropdown 
         cityDropDown.appendChild(newOption);
 
@@ -26,60 +27,76 @@ window.onload = () => {
 
 };
 
-//onCityDropDownChange function
-function onCityDropDownChange (){
+function showGeographicLocation() {
 
+    selectedCity = cityDropDown.value; // Update the selected city
 
-    let selectedCity = cityDropDown.value;
+    if (selectedCity !== "") {
+        const city = cities.find(city => city.name === selectedCity);
 
-    const cityFilter = cities.filter(city=>city.name===selectedCity);
+        const latitude = city.latitude;
+        const longitude = city.longitude;
 
-    if(cityFilter.length>0){
-        for(let city of cityFilter){
-            createCityTable(city);
-        }
+        // console.log(latitude);  // Outputs: Latitude
+        // console.log(longitude); // Outputs: Longitude
+
+        // latitudeOutput.innerHTML = latitude;
+        // longitudeOutput.innerHTML = longitude;
+
+        
+        createWeatherTable();
+        getWeatherApiForCity(latitude, longitude);
     }
 }
 
+//onCityDropDownChange function
 
-function createCityTable(){
-   let stationLookupUrl = `https://api.weather.gov/points/${selectedCity.latitude},${selectedCity.longitude}`;
+function getWeatherApiForCity(latitude,longitude) {
 
    
-       fetch(stationLookupUrl)
-           .then(response => response.json())
-           .then(data => {
-        });
+    let stationLookupUrl = `https://api.weather.gov/points/${latitude},${longitude}`;
+    let selectedCity = cities.find(city => city.name === selectedCity);
+    fetch(stationLookupUrl)
+    .then(response => response.json())
+    .then(data => {
+        const weatherApiUrl = data.properties.forecast;
+        getWeather(weatherApiUrl);
+    });
+}
 
+function getWeather(weatherApiUrl) {
+    fetch(weatherApiUrl)
+        .then(response => response.json())
+        .then(data => {
+            const forecastArray = data.properties.periods;
+            createWeatherTable(forecastArray);
+        });
 
 }
 
-//onCityDropDownChange function
-// function onCityDropDownChange() {
 
 
-//     let selectedCity = cityDropDown.value;
-
-//     const cityFilter = cities.filter(city => city.name === selectedCity);
-
-
-// }
+function createWeatherTable(forecastArray) {
+    tableBody.innerHTML = "";
 
 
-// function createCityTable(city) {
+    for (let cityWeather of forecastArray){
 
-   
-//         let row = table.insertRow();
-//         let cell1 = row.insertCell();
-//         let cell2 = row.insertCell();
-//         let cell3 = row.insertCell();
+        let row = table.insertRow(-1);
+        let cell1 = row.insertCell(0);
+        let cell2 = row.insertCell();
+        let cell3 = row.insertCell();
+
+    
+    
+        cell1.innerHTML = cityWeather.name;
+        cell2.innerHTML = cityWeather.temperature;
+        cell3.innerHTML = cityWeather.temperature + cityWeather.temperatureUnit;
 
 
-//         cell1.innerHTML = data[i].city;
-//         cell2.innerHTML = data[i].city;
-//         cell3.innerHTML = data[i].city;
-//     }
 
 
-// }
+    }
+}
+
 
